@@ -8,14 +8,17 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.doanhung.client2.databinding.ActivityMainBinding;
 import com.example.baseproject.ICallback;
 import com.example.baseproject.IRemoteServer;
 import com.example.baseproject.Item;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,10 +29,20 @@ public class MainActivity extends AppCompatActivity {
     private IRemoteServer mRemoteService;
     private boolean mBound;
 
+    private List<Item> mItemList;
+    private ItemAdapter mItemAdapter;
+
+    private boolean mRequestEnable;
+
+
     private ICallback mGetItemCallback = new ICallback.Stub() {
         @Override
         public void onCallback(Item item) {
-            Log.i(TAG, "p1 onCallback: " + item.mName);
+            runOnUiThread(() -> {
+                mItemList.add(item);
+                mItemAdapter.setData(mItemList);
+            });
+            Log.i(TAG, "client 2 receive item: " + item.mId);
             actionGetItem();
         }
     };
@@ -41,20 +54,22 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "onServiceConnected: ");
             mBound = true;
             mRemoteService = IRemoteServer.Stub.asInterface(service);
+            mRequestEnable = true;
+            actionGetItem();
         }
 
         @Override
         public void onBindingDied(ComponentName name) {
             mBound = false;
             mRemoteService = null;
-            mGetItemCallback = null;
+            mRequestEnable = false;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mBound = false;
             mRemoteService = null;
-            mGetItemCallback = null;
+            mRequestEnable = false;
         }
     };
 
@@ -65,9 +80,24 @@ public class MainActivity extends AppCompatActivity {
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
-        mBinding.btnConnect.setOnClickListener(v -> connectProducer());
-        mBinding.btnGetItem.setOnClickListener(v -> actionGetItem());
-        mBinding.btnDisconnect.setOnClickListener(v -> disconnectProducer());
+        mBinding.swGetItem.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                connectProducer();
+            } else {
+                disconnectProducer();
+            }
+        });
+
+        setUpRcvItem();
+    }
+
+    private void setUpRcvItem() {
+        mItemList = new ArrayList<>();
+        mItemAdapter = new ItemAdapter(mItemList);
+        mBinding.rcvItems.setLayoutManager(
+                new LinearLayoutManager(MainActivity.this)
+        );
+        mBinding.rcvItems.setAdapter(mItemAdapter);
     }
 
 
@@ -78,19 +108,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void actionGetItem() {
-        if (mBound) {
+        if(mRequestEnable) {
             try {
                 mRemoteService.getItem(mGetItemCallback);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-        } else {
-            Toast.makeText(
-                    MainActivity.this,
-                    "Need connect producer in advance",
-                    Toast.LENGTH_SHORT
-            ).show();
         }
+
     }
 
     private void connectProducer() {
@@ -100,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
         );
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
-
 
     @Override
     protected void onDestroy() {

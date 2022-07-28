@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">client 2 </string>
+    <string name="app_name">Client 2</string>
     <string name="auto_get_item">Auto Get Item</string>
     <string name="connect_to_producer">Connect To Producer</string>
     <string name="disconnect_producer">Disconnect Producer</string>
+    <string name="get_item_from_producer">Get Item From Producer</string>
 </resources>

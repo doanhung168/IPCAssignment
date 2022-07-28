@@ -20,7 +20,7 @@ public class RemoteService extends Service {
     private BlockingQueue<Item> mBlockingQueue;
     private Random mRandom;
 
-    private final IRemoteServer mRemoteServer = new IRemoteServer.Stub() {
+    private IRemoteServer mRemoteServer = new IRemoteServer.Stub() {
 
         @Override
         public void getItem(ICallback callback) {
@@ -53,7 +53,7 @@ public class RemoteService extends Service {
                 Item item = new Item();
                 item.mId = id;
                 item.mName = "Item " + id;
-                item.mPrice = id / (mRandom.nextInt(10000) + 1);
+                item.mPrice = 2000.0 + mRandom.nextInt(1000);
                 try {
                     mBlockingQueue.put(item);
                 } catch (InterruptedException e) {
@@ -76,6 +76,7 @@ public class RemoteService extends Service {
         Log.i(TAG, "onDestroy");
         super.onDestroy();
         mIsRun = false;
+        mRemoteServer = null;
     }
 
     private void sleep() {

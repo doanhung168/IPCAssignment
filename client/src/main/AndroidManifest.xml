@@ -14,7 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BaseProject">
         <activity
-            android:hardwareAccelerated="false"
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
