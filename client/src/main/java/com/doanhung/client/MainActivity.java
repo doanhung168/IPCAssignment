@@ -105,12 +105,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void disconnectProducer() {
         if (mBound) {
+            mRequestEnable = false;
             unbindService(mConnection);
         }
     }
 
     private void actionGetItem() {
-        if(mRequestEnable) {
+        if (mRequestEnable) {
             try {
                 mRemoteService.getItem(mGetItemCallback);
             } catch (RemoteException e) {

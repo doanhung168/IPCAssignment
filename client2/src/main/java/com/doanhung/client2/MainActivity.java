@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void disconnectProducer() {
         if (mBound) {
+            mRequestEnable = false;
             unbindService(mConnection);
         }
     }

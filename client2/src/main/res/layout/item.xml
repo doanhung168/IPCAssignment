@@ -9,7 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/itemRoot"
-        android:background="#E0F2F1"
+        android:background="#F8BBD0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/small_dimens">
